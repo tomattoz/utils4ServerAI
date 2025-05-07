@@ -27,17 +27,20 @@ public extension Model {
 public struct ChatQuery {
     public let modelID: ModelID
     public let messages: [Chat.Message]
+    public let responseFormat: Chat.ResponseFormat?
     public let parentMessageID: String?
     public let conversationID: String?
     
     public init(modelID: ModelID,
                 messages: [Chat.Message],
                 parentMessageID: String?,
-                conversationID: String?) {
+                conversationID: String?,
+                responseFormat: Chat.ResponseFormat? = nil) {
         self.modelID = modelID
         self.messages = messages
         self.parentMessageID = parentMessageID
         self.conversationID = conversationID
+        self.responseFormat = responseFormat
     }
 }
 
@@ -45,6 +48,7 @@ extension OpenAIKit.ChatProvider {
     func create(_ query: ChatQuery) async throws -> Chat {
         try await create(model: query.modelID,
                          messages: query.messages,
+                         responseFormat: query.responseFormat,
                          parentMessageID: query.parentMessageID,
                          conversationID: query.conversationID)
     }
@@ -52,6 +56,7 @@ extension OpenAIKit.ChatProvider {
     func stream(_ query: ChatQuery) async throws -> AsyncThrowingStream<ChatStream, any Error> {
         try await stream(model: query.modelID,
                          messages: query.messages,
+                         responseFormat: query.responseFormat,
                          parentMessageID: query.parentMessageID,
                          conversationID: query.conversationID)
     }

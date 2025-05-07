@@ -55,4 +55,8 @@ public extension Array where Element == Chat.Message {
     var assistantsOrSystem: Self {
         filter { $0.isSystem || $0.isAssistant }
     }
+    
+    var user: Self {
+        filter { $0.isUser }
+    }
 }
