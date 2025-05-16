@@ -28,6 +28,7 @@ public struct ChatQuery {
     public let modelID: ModelID
     public let messages: [Chat.Message]
     public let responseFormat: Chat.ResponseFormat?
+    public let webSearchOptions: Chat.WebSearchOptions?
     public let parentMessageID: String?
     public let conversationID: String?
     
@@ -35,12 +36,14 @@ public struct ChatQuery {
                 messages: [Chat.Message],
                 parentMessageID: String?,
                 conversationID: String?,
-                responseFormat: Chat.ResponseFormat? = nil) {
+                responseFormat: Chat.ResponseFormat? = nil,
+                webSearchOptions: Chat.WebSearchOptions? = nil) {
         self.modelID = modelID
         self.messages = messages
         self.parentMessageID = parentMessageID
         self.conversationID = conversationID
         self.responseFormat = responseFormat
+        self.webSearchOptions = webSearchOptions
     }
 }
 
@@ -49,6 +52,7 @@ extension OpenAIKit.ChatProvider {
         try await create(model: query.modelID,
                          messages: query.messages,
                          responseFormat: query.responseFormat,
+                         webSearchOptions: query.webSearchOptions,
                          parentMessageID: query.parentMessageID,
                          conversationID: query.conversationID)
     }
@@ -57,6 +61,7 @@ extension OpenAIKit.ChatProvider {
         try await stream(model: query.modelID,
                          messages: query.messages,
                          responseFormat: query.responseFormat,
+                         webSearchOptions: query.webSearchOptions,
                          parentMessageID: query.parentMessageID,
                          conversationID: query.conversationID)
     }
