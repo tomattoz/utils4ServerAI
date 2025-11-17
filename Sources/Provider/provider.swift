@@ -11,6 +11,7 @@ public protocol ChatProvider: Sendable, Identifiable {
     var id: String { get }
     func answer(req: Request, data: ChatDTO.Request) async throws -> ChatDTO.Response
     func answerStream(req: Request, data: ChatDTO.Request) async throws -> ChatAsyncResponseEncodable
+    func download(req: Request, data: FileDTO.Request) async throws -> Response
 }
 
 extension Provider {
@@ -21,11 +22,18 @@ extension Provider {
             "unsupported"
         }
         
-        public func answer(req: Request, data: ChatDTO.Request) async throws -> ChatDTO.Response {
+        public func answer(req: Request, data: ChatDTO.Request) async throws
+        -> ChatDTO.Response {
             throw ContentError.unsupported
         }
         
-        public func answerStream(req: Request, data: ChatDTO.Request) async throws -> ChatAsyncResponseEncodable {
+        public func answerStream(req: Request, data: ChatDTO.Request) async throws
+        -> ChatAsyncResponseEncodable {
+            throw ContentError.unsupported
+        }
+        
+        public func download(req: Request, data: FileDTO.Request) async throws
+        -> Response {
             throw ContentError.unsupported
         }
     }
@@ -41,8 +49,8 @@ extension Provider {
             self.preffered = preffered
         }
         
-        private func exec<T>(req: Vapor.Request,
-                             data: ChatDTO.Request,
+        private func exec<T, DTO: ConversationDTO.Request>(req: Vapor.Request,
+                             data: DTO,
                              exec: (any Proto) async throws -> T) async throws -> T {
             var resultError: Error?
             var array = array
@@ -94,6 +102,12 @@ extension Provider {
         -> ChatAsyncResponseEncodable {
             try await exec(req: req, data: data) {
                 try await $0.answerStream(req: req, data: data)
+            }
+        }
+        
+        public func download(req: Request, data: FileDTO.Request) async throws -> Response {
+            try await exec(req: req, data: data) {
+                try await $0.download(req: req, data: data)
             }
         }
     }

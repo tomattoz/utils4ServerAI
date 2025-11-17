@@ -16,6 +16,41 @@ extension Provider.OpenAI {
             self.access = access
         }
         
+        public override func download(req: Vapor.Request, data: FileDTO.Request) async throws
+        -> Response {
+            var allowed = CharacterSet.urlQueryAllowed
+            allowed.remove(charactersIn: ":#[]@!$&'()*+,;=%?")
+            
+            guard let fileURL = data.url.addingPercentEncoding(withAllowedCharacters: allowed) else {
+                throw StringError("Unable to encode \(data.url)")
+            }
+            
+            let serverURL = URL.chatGPTweb.appendingPathComponent("/v1/files/download").absoluteString
+            let resultingURL = "\(serverURL)?url=\(fileURL)"
+            
+            let targetURI = URI(string: resultingURL)
+            let response = try await req.client.get(targetURI, headers: [
+                "Authorization": "Bearer \(access.token)"
+            ])
+            
+            let bodyStream = Response.Body { writer in
+                Task {
+                    do {
+                        if let buffer = response.body {
+                            _ = writer.write(.buffer(buffer))
+                        }
+                        _ = writer.write(.end)
+                    } catch {
+                        _ = writer.write(.error(error))
+                    }
+                }
+            }
+            
+            return Response(status: response.status,
+                            headers: response.headers,
+                            body: bodyStream)
+         }
+
         open override func process(_ error: Error, request: Vapor.Request) async -> Error {
             let error = await super.process(error, request: request)
             let access = access
@@ -49,3 +84,4 @@ extension Provider.OpenAI {
         }
     }
 }
+

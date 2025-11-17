@@ -52,6 +52,11 @@ extension Provider.OpenAI {
             }
         }
         
+        func download(req: Vapor.Request, data: FileDTO.Request) async throws
+        -> Response {
+            throw ContentError.unsupported
+        }
+
         private func exec<T>(request: Vapor.Request,
                              method: String,
                              _ block: () async throws -> T) async throws -> T {
@@ -88,6 +93,11 @@ extension Provider.OpenAI {
         public func answerStream(req: Vapor.Request, data: ChatDTO.Request) async throws
         -> ChatAsyncResponseEncodable {
             try await adapter.answerStream(req: req, data: data)
+        }
+        
+        public func download(req: Vapor.Request, data: FileDTO.Request) async throws
+        -> Response {
+            try await adapter.download(req: req, data: data)
         }
     }
 }

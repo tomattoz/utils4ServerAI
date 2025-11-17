@@ -4,7 +4,7 @@ import Vapor
 import OpenAIKit
 import Utils9AIFirestore
 
-private extension URL {
+extension URL {
     static let chatGPTweb = URL(string: .urlChatGPTweb)!
 }
 
