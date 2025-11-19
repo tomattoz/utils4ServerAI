@@ -18,37 +18,19 @@ extension Provider.OpenAI {
         
         public override func download(req: Vapor.Request, data: FileDTO.Request) async throws
         -> Response {
-            var allowed = CharacterSet.urlQueryAllowed
-            allowed.remove(charactersIn: ":#[]@!$&'()*+,;=%?")
-            
-            guard let fileURL = data.url.addingPercentEncoding(withAllowedCharacters: allowed) else {
-                throw StringError("Unable to encode \(data.url)")
-            }
-            
-            let serverURL = URL.chatGPTweb.appendingPathComponent("/v1/files/download").absoluteString
-            let resultingURL = "\(serverURL)?url=\(fileURL)"
-            
-            let targetURI = URI(string: resultingURL)
+            let serverURL = URL.chatGPTweb.appendingPathComponent("/v1/files/download/headers").absoluteString
+            let targetURI = URI(string: serverURL)
             let response = try await req.client.get(targetURI, headers: [
                 "Authorization": "Bearer \(access.token)"
             ])
-            
-            let bodyStream = Response.Body { writer in
-                Task {
-                    do {
-                        if let buffer = response.body {
-                            _ = writer.write(.buffer(buffer))
-                        }
-                        _ = writer.write(.end)
-                    } catch {
-                        _ = writer.write(.error(error))
-                    }
-                }
+  
+            if var body = response.body,
+               let fullBody = try await body.readData(length: body.readableBytes) {
+                return .init(status: response.status, body: .init(data: fullBody))
             }
-            
-            return Response(status: response.status,
-                            headers: response.headers,
-                            body: bodyStream)
+            else {
+                return .init(status: response.status, body: .init(buffer: .init()))
+            }
          }
 
         open override func process(_ error: Error, request: Vapor.Request) async -> Error {
