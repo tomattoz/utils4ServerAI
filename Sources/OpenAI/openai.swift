@@ -31,11 +31,15 @@ public struct ChatQuery {
     public let webSearchOptions: Chat.WebSearchOptions?
     public let parentMessageID: String?
     public let conversationID: String?
-    
+    public let temperature: Double
+    public let topP: Double
+
     public init(modelID: ModelID,
                 messages: [Chat.Message],
                 parentMessageID: String?,
                 conversationID: String?,
+                temperature: Double = 1,
+                topP: Double = 1,
                 responseFormat: Chat.ResponseFormat? = nil,
                 webSearchOptions: Chat.WebSearchOptions? = nil) {
         self.modelID = modelID
@@ -44,6 +48,8 @@ public struct ChatQuery {
         self.conversationID = conversationID
         self.responseFormat = responseFormat
         self.webSearchOptions = webSearchOptions
+        self.temperature = temperature
+        self.topP = topP
     }
 }
 
@@ -51,6 +57,8 @@ extension OpenAIKit.ChatProvider {
     func create(_ query: ChatQuery) async throws -> Chat {
         try await create(model: query.modelID,
                          messages: query.messages,
+                         temperature: query.temperature,
+                         topP: query.topP,
                          responseFormat: query.responseFormat,
                          webSearchOptions: query.webSearchOptions,
                          parentMessageID: query.parentMessageID,
@@ -60,6 +68,8 @@ extension OpenAIKit.ChatProvider {
     func stream(_ query: ChatQuery) async throws -> AsyncThrowingStream<ChatStream, any Error> {
         try await stream(model: query.modelID,
                          messages: query.messages,
+                         temperature: query.temperature,
+                         topP: query.topP,
                          responseFormat: query.responseFormat,
                          webSearchOptions: query.webSearchOptions,
                          parentMessageID: query.parentMessageID,
