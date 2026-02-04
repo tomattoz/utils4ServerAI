@@ -14,6 +14,8 @@ extension Vapor.Request {
     }
     
     public func decodeAndValidate<D: Decodable & StringHashable>(_: D.Type) throws -> D {
-        return try content.decode(D.self)
+        let result = try content.decode(D.self)
+        try validate(hash: result)
+        return result
     }
 }
