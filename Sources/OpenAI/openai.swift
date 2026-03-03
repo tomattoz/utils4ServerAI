@@ -33,6 +33,8 @@ public struct ChatQuery {
     public let conversationID: String?
     public let temperature: Double
     public let topP: Double
+    public let promptCacheRetention: String?
+    public let promptCacheKey: String?
 
     public init(modelID: ModelID,
                 messages: [Chat.Message],
@@ -41,7 +43,9 @@ public struct ChatQuery {
                 temperature: Double = 1,
                 topP: Double = 1,
                 responseFormat: Chat.ResponseFormat? = nil,
-                webSearchOptions: Chat.WebSearchOptions? = nil) {
+                webSearchOptions: Chat.WebSearchOptions? = nil,
+                promptCacheRetention: String? = nil,
+                promptCacheKey: String? = nil) {
         self.modelID = modelID
         self.messages = messages
         self.parentMessageID = parentMessageID
@@ -50,6 +54,8 @@ public struct ChatQuery {
         self.webSearchOptions = webSearchOptions
         self.temperature = temperature
         self.topP = topP
+        self.promptCacheRetention = promptCacheRetention
+        self.promptCacheKey = promptCacheKey
     }
 }
 
@@ -62,7 +68,9 @@ extension OpenAIKit.ChatProvider {
                          responseFormat: query.responseFormat,
                          webSearchOptions: query.webSearchOptions,
                          parentMessageID: query.parentMessageID,
-                         conversationID: query.conversationID)
+                         conversationID: query.conversationID,
+                         promptCacheRetention: query.promptCacheRetention,
+                         promptCacheKey: query.promptCacheKey)
     }
     
     func stream(_ query: ChatQuery) async throws -> AsyncThrowingStream<ChatStream, any Error> {
@@ -73,6 +81,8 @@ extension OpenAIKit.ChatProvider {
                          responseFormat: query.responseFormat,
                          webSearchOptions: query.webSearchOptions,
                          parentMessageID: query.parentMessageID,
-                         conversationID: query.conversationID)
+                         conversationID: query.conversationID,
+                         promptCacheRetention: query.promptCacheRetention,
+                         promptCacheKey: query.promptCacheKey)
     }
 }
